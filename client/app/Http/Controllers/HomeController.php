@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class HomeController extends Controller
 {
@@ -23,6 +24,26 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $posts = [];
+
+        if (auth()->user()->token) {
+
+            if (auth()->user()->token->hasExpired()) {
+                return redirect('/oauth/refresh');
+            }
+
+            $response = Http::withHeaders([
+                'Accept' => 'application/json',
+                'Authorization' => 'Bearer ' . auth()->user()->token->access_token
+            ])->get(config('services.oauth_server.uri') . '/api/posts');
+
+            if ($response->status() === 200) {
+                $posts = $response->json();
+            }
+        }
+
+        return view('home', [
+            'posts' => $posts
+        ]);
     }
 }

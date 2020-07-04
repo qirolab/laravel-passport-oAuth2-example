@@ -23,3 +23,5 @@ Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
 
 Route::get('/posts', 'PostsController@index');
+
+Route::get('/developers', 'DevelopersController@index');

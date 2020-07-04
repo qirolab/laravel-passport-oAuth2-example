@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,3 +21,7 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::get('/oauth/redirect', 'OAuthController@redirect');
+Route::get('/oauth/callback', 'OAuthController@callback');
+Route::get('/oauth/refresh', 'OAuthController@refresh');
