@@ -15,7 +15,7 @@
                     @endif
 
                     @if (!auth()->user()->token)
-                        <a href="/oauth/redirect">Authorize from server</a>
+                        <a href="http://localhost/Projects/laravel-passport-oAuth2-example/client/public/oauth/redirect">Authorize from server</a>
                     @endif
 
                     @foreach ($posts as $post)
