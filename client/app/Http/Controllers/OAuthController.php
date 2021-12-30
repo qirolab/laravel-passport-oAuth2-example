@@ -4,28 +4,42 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class OAuthController extends Controller
 {
-    public function redirect()
+    public function redirect(Request $request)
     {
+
+        $request->session()->put('state', $state = Str::random(40));
+
         $queries = http_build_query([
-            'client_id' => config('services.oauth_server.client_id'),
-            'redirect_uri' => config('services.oauth_server.redirect'),
+            'client_id' => env('OAUTH_SERVER_ID'),
+            'redirect_uri' => env('OAUTH_SERVER_REDIRECT'),
             'response_type' => 'code',
-            'scope' => 'view-posts'
+            'scope' => '',
+            'state' => $state,
         ]);
 
-        return redirect(config('services.oauth_server.uri') . '/oauth/authorize?' . $queries);
+        return redirect(env('OAUTH_SERVER_URI') . '/oauth/authorize?' . $queries);
     }
 
     public function callback(Request $request)
     {
-        $response = Http::post(config('services.oauth_server.uri') . '/oauth/token', [
+        $state = $request->session()->pull('state');
+
+        throw_unless(
+            strlen($state) > 0 && $state === $request->state,
+            InvalidArgumentException::class
+        );
+
+
+      
+        $response = Http::asForm()->post(env('OAUTH_SERVER_URI') . '/oauth/token', [
             'grant_type' => 'authorization_code',
-            'client_id' => config('services.oauth_server.client_id'),
-            'client_secret' => config('services.oauth_server.client_secret'),
-            'redirect_uri' => config('services.oauth_server.redirect'),
+            'client_id' => env('OAUTH_SERVER_ID'),
+            'client_secret' => env('OAUTH_SERVER_SECRET'),
+            'redirect_uri' => env('OAUTH_SERVER_REDIRECT'),
             'code' => $request->code
         ]);
 
